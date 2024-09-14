@@ -61,7 +61,7 @@ def grafico1(dataFrame):
     plt.xticks(rotation=90)
     plt.show()
 
-def grafico_pizza(dataFrame):
+def grafico2(dataFrame):
     plt.figure(figsize=(12, 8))  # Aumentar o tamanho da figura
     state_sales = dataFrame.groupby('ship-state')['Amount'].sum()
     explode = [0.05 if val > state_sales.mean() else 0 for val in state_sales]    # Explodir as fatias maiores
@@ -77,7 +77,15 @@ def grafico_pizza(dataFrame):
     plt.axis('equal')  # Garantir que o gráfico seja circular
     plt.show()
     
-def grafico_dispersao(dataFrame):
+def grafico3(dataFrame):
+    plt.figure(figsize=(12, 8))
+    sns.histplot(dataFrame['Qty'], bins=30, kde=True)
+    plt.title('Distribuição da Quantidade de Produtos Vendidos')
+    plt.xlabel('Quantidade')
+    plt.ylabel('Frequência')
+    plt.show()    
+    
+def grafico4(dataFrame):
     plt.figure(figsize=(12, 8))
     sns.scatterplot(x='Qty', y='Amount', data=dataFrame)
     plt.title('Quantidade vs Valor Total de Vendas')
@@ -85,7 +93,7 @@ def grafico_dispersao(dataFrame):
     plt.ylabel('Valor Total')
     plt.show()
 
-def grafico_linhas(dataFrame):
+def grafico5(dataFrame):
     if 'Order Date' in dataFrame.columns:
         dataFrame['Order Date'] = pd.to_datetime(dataFrame['Order Date'])  # Converter para datetime se necessário
         sales_over_time = dataFrame.groupby(dataFrame['Order Date'].dt.to_period('M'))['Amount'].sum()
@@ -96,14 +104,6 @@ def grafico_linhas(dataFrame):
         plt.ylabel('Total de Vendas')
         plt.show()
         
-def grafico_histograma(dataFrame):
-    plt.figure(figsize=(12, 8))
-    sns.histplot(dataFrame['Qty'], bins=30, kde=True)
-    plt.title('Distribuição da Quantidade de Produtos Vendidos')
-    plt.xlabel('Quantidade')
-    plt.ylabel('Frequência')
-    plt.show()
-    
 def pegar_maiores_vendas(dataFrame):
     # Agrupar por estado e somar as vendas
     state_sales = dataFrame.groupby('ship-state')['Amount'].sum().sort_values(ascending=False)
@@ -112,12 +112,12 @@ def pegar_maiores_vendas(dataFrame):
     return top_two_states
 
 # Função para gerar gráficos de comparação
-def gerar_graficos_comparacao(dataFrame, top_two_states):
+def gerar_graficos_comparacao(dataFrame, dois_principais_estados_vendedores):
     # Filtrar os dados para os dois estados
-    estados_filtrados = dataFrame[dataFrame['ship-state'].isin(top_two_states.index)]
+    estados_filtrados = dataFrame[dataFrame['ship-state'].isin(dois_principais_estados_vendedores.index)]
     # Gráfico de Barras para comparar os dois estados
     plt.figure(figsize=(8, 6))
-    sns.barplot(x=top_two_states.index, y=top_two_states.values, palette='coolwarm')
+    sns.barplot(x=dois_principais_estados_vendedores.index, y=dois_principais_estados_vendedores.values, palette='coolwarm')
     plt.title('Comparação do Total de Vendas entre os Dois Estados que mais venderam')
     plt.xlabel('Estado')
     plt.ylabel('Total de Vendas')
@@ -159,20 +159,20 @@ def plot_menores_vendas(menores_vendas):
     plt.show()
 limite_vendas = 700 # Limite de vendas abaixo do qual você quer focar
 
-def pegar_dois_menores_vendas(dataFrame):# Função para pegar os dois estados/regiões com as menores vendas
-    state_sales = dataFrame.groupby('ship-state')['Amount'].sum().sort_values() # Agrupando por estado e somando as vendas
-    dois_menores_vendas = state_sales.head(2)    # Selecionando dois estados com menor volume de vendas
-    return dois_menores_vendas
+def estados_menos_vendas(dataFrame):# Função para pegar os dois estados/regiões com as menores vendas
+    vendas_estados = dataFrame.groupby('ship-state')['Amount'].sum().sort_values() # Agrupando por estado e somando as vendas
+    dois_menores_vendedores = vendas_estados.head(2)    # Selecionando dois estados com menor volume de vendas
+    return dois_menores_vendedores
 
-def plot_dois_menores_vendas(dois_menores_vendas):# Função para plotar os dois estados com menor volume de vendas
+def plot_dois_menores_vendedores(dois_menores_vendedores):# Função para plotar os dois estados com menor volume de vendas
     plt.figure(figsize=(8, 6))
-    sns.barplot(x=dois_menores_vendas.index, y=dois_menores_vendas.values, palette='coolwarm')
+    sns.barplot(x=dois_menores_vendedores.index, y=dois_menores_vendedores.values, palette='coolwarm')
     plt.title('Comparação dos Dois Estados com Menores Vendas')
     plt.xlabel('Estado')
     plt.ylabel('Total de Vendas')
     plt.show()
 
-def grafico_boxplot(dataFrame):
+def grafico6(dataFrame):
     plt.figure(figsize=(12, 8))
     sns.boxplot(x='ship-state', y='Amount', data=dataFrame)
     plt.title('Distribuição das Vendas por Estado')
@@ -185,14 +185,14 @@ arquivo = "C:\\Users\\Usuario\\Desktop\\Trabalho Jairo\\AmazonSaleReport.csv"
 dataFrame = carregarDados(arquivo)
 dataFrame = prepararDados(dataFrame)
 grafico1(dataFrame)  
-grafico_pizza(dataFrame)  
-grafico_histograma(dataFrame)  
-grafico_dispersao(dataFrame)  
-grafico_boxplot(dataFrame)  
-top_two_states = pegar_maiores_vendas(dataFrame)
-grafico_linhas(dataFrame)  
-dois_menores_vendas = pegar_dois_menores_vendas(dataFrame)
-gerar_graficos_comparacao(dataFrame, top_two_states)
+grafico2(dataFrame)  
+grafico3(dataFrame)  
+grafico4(dataFrame)  
+grafico6(dataFrame)  
+grafico5(dataFrame) 
+dois_principais_estados_vendedores = pegar_maiores_vendas(dataFrame)
+dois_menores_vendedores = estados_menos_vendas(dataFrame)
+gerar_graficos_comparacao(dataFrame, dois_principais_estados_vendedores)
 menores_vendas = filtrar_menores_vendas(dataFrame, limite_vendas)
 plot_menores_vendas(menores_vendas)
-plot_dois_menores_vendas(dois_menores_vendas)
+plot_dois_menores_vendedores(dois_menores_vendedores)
